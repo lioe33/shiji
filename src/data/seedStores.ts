@@ -73,10 +73,28 @@ export const DEFAULT_COVER_BY_CATEGORY: Record<CuisineCategory, string> = {
   西餐汉堡: COVER_PRESETS[2].url,
 };
 
+export const POPULAR_CITIES: string[] = [
+  '上海',
+  '北京',
+  '深圳',
+  '广州',
+  '杭州',
+  '成都',
+  '重庆',
+  '武汉',
+  '南京',
+  '苏州',
+  '西安',
+  '长沙',
+  '厦门',
+  '汕头',
+];
+
 export const SEED_STORES: TakeoutStore[] = [
   {
     id: 'store-chuanwei-ganguo',
     name: '山城灶台 · 现炒干锅馆',
+    city: '成都',
     category: '中式正餐',
     platform: '美团',
     rating: 4.9,
@@ -94,6 +112,7 @@ export const SEED_STORES: TakeoutStore[] = [
   {
     id: 'store-laozhang-noodles',
     name: '阿明眷村红烧牛肉面',
+    city: '上海',
     category: '粉面粥',
     platform: '饿了么',
     rating: 4.8,
@@ -111,6 +130,7 @@ export const SEED_STORES: TakeoutStore[] = [
   {
     id: 'store-nordic-bowl',
     name: '森野谷物 · 炙烤能量碗',
+    city: '上海',
     category: '轻食沙拉',
     platform: '美团',
     rating: 4.7,
@@ -128,6 +148,7 @@ export const SEED_STORES: TakeoutStore[] = [
   {
     id: 'store-midnight-skewer',
     name: '北疆炭火小串铺',
+    city: '北京',
     category: '烧烤夜宵',
     platform: '京东秒送',
     rating: 4.9,
@@ -145,6 +166,7 @@ export const SEED_STORES: TakeoutStore[] = [
   {
     id: 'store-slow-roast',
     name: '白日漫游 · 精品咖啡与抹茶',
+    city: '深圳',
     category: '奶茶咖啡',
     platform: '小程序',
     rating: 4.8,
@@ -162,6 +184,7 @@ export const SEED_STORES: TakeoutStore[] = [
   {
     id: 'store-kuro-unagi',
     name: '炭屋一番 · 活烤鳗鱼专门店',
+    city: '杭州',
     category: '日韩料理',
     platform: '饿了么',
     rating: 4.9,

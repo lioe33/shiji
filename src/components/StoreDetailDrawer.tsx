@@ -126,7 +126,7 @@ export function StoreDetailDrawer({
           <div className="p-5 sm:p-6 pb-8 space-y-5">
             <div>
               <p className="text-xs text-[#5A6069] mb-2">
-                {store.category} · {store.platform} · 最近下单{' '}
+                {store.city} · {store.category} · {store.platform} · 最近下单{' '}
                 <span className="font-mono tabular-nums">{store.lastOrderedAt}</span>
               </p>
               <div className="flex items-start justify-between gap-3">

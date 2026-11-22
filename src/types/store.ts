@@ -16,11 +16,12 @@ export type SortOption =
   | 'avgPrice'
   | 'recent';
 
-export type AppView = 'catalog' | 'picker' | 'insights' | 'deploy';
+export type AppView = 'catalog' | 'picker' | 'insights';
 
 export interface TakeoutStore {
   id: string;
   name: string;
+  city: string;
   category: CuisineCategory;
   platform: DeliveryPlatform;
   rating: number; // 1.0 - 5.0
@@ -38,6 +39,7 @@ export interface TakeoutStore {
 
 export interface StoreFilterState {
   search: string;
+  city: string;
   category: CuisineCategory | '全部';
   platform: DeliveryPlatform | '全部平台';
   favoritesOnly: boolean;
@@ -45,6 +47,7 @@ export interface StoreFilterState {
 }
 
 export interface MealPickerCriteria {
+  city: string;
   category: CuisineCategory | '全部';
   maxPrice: number | null;
   maxDeliveryMinutes: number | null;
@@ -53,6 +56,7 @@ export interface MealPickerCriteria {
 
 export interface StoreFormInput {
   name: string;
+  city: string;
   category: CuisineCategory;
   platform: DeliveryPlatform;
   rating: number;
@@ -67,6 +71,7 @@ export interface StoreFormInput {
 
 export interface ValidationErrors {
   name?: string;
+  city?: string;
   avgPrice?: string;
   deliveryMinutes?: string;
   rating?: string;
@@ -85,6 +90,12 @@ export interface PlatformBreakdownItem {
   percentage: number;
 }
 
+export interface CityBreakdownItem {
+  city: string;
+  count: number;
+  percentage: number;
+}
+
 export interface TasteStats {
   totalStores: number;
   favoriteCount: number;
@@ -95,5 +106,6 @@ export interface TasteStats {
   topCategory: CuisineCategory | null;
   categoryBreakdown: CategoryBreakdownItem[];
   platformBreakdown: PlatformBreakdownItem[];
+  cityBreakdown: CityBreakdownItem[];
   topReordered: TakeoutStore[];
 }

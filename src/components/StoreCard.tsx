@@ -57,7 +57,7 @@ export function StoreCard({
         {/* Clean unboxed metadata kicker */}
         <div className="flex items-center justify-between gap-2 text-xs text-[#5A6069] mb-2">
           <span className="truncate">
-            {store.category} · {store.platform} · 约{' '}
+            {store.city} · {store.category} · {store.platform} · 约{' '}
             <span className="font-mono tabular-nums">{store.deliveryMinutes}</span> 分钟
           </span>
           <span className="inline-flex items-center gap-1 font-mono tabular-nums font-medium text-[#111315] shrink-0">

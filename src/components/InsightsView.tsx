@@ -69,7 +69,7 @@ export function InsightsView({
           品味统计与数据备份
         </h1>
         <p className="text-sm md:text-base text-[#5A6069] leading-relaxed">
-          所有记录保存在你的浏览器本地存储中，部署到 Cloudflare 后可通过 JSON 备份随时在多设备同步。
+          所有记录自动保存在本地浏览器中，支持随时导出或导入 JSON 文件进行备份与跨设备同步。
         </p>
       </div>
 
@@ -147,6 +147,23 @@ export function InsightsView({
           </div>
 
           <div className="pt-5 border-t border-black/[0.08]">
+            <h3 className="text-sm font-semibold text-[#111315] mb-3">城市分布</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {stats.cityBreakdown.map((item) => (
+                <div
+                  key={item.city}
+                  className="flex items-center justify-between py-2 border-b border-black/[0.06]"
+                >
+                  <span className="text-sm text-[#111315] truncate">{item.city}</span>
+                  <span className="font-mono tabular-nums text-xs text-[#5A6069] shrink-0">
+                    {item.count} 家 ({item.percentage}%)
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-5 border-t border-black/[0.08]">
             <h3 className="text-sm font-semibold text-[#111315] mb-3">常用下单平台</h3>
             <div className="grid grid-cols-2 gap-3">
               {stats.platformBreakdown.map((item) => (
@@ -193,7 +210,7 @@ export function InsightsView({
                           {store.name}
                         </p>
                         <p className="text-xs text-[#5A6069] truncate mt-0.5">
-                          {store.category} · {store.platform} · 人均 ¥{store.avgPrice}
+                          {store.city} · {store.category} · {store.platform} · 人均 ¥{store.avgPrice}
                         </p>
                       </div>
                     </div>
@@ -215,7 +232,7 @@ export function InsightsView({
             本地数据备份与迁移
           </h2>
           <p className="text-sm text-[#5A6069] leading-relaxed">
-            由于本应用面向 Cloudflare Pages 纯静态托管，导出 JSON 文件即可永久存档或在手机/电脑之间快速同步你的外卖清单。
+            导出 JSON 文件即可永久存档，或在手机与电脑之间快速同步你的宝藏外卖清单。
           </p>
         </div>
 

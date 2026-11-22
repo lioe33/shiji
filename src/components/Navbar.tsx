@@ -1,4 +1,4 @@
-import { BookOpen, CloudUpload, Dices, PieChart, Plus } from 'lucide-react';
+import { BookOpen, Dices, PieChart, Plus } from 'lucide-react';
 import type { AppView } from '../types/store';
 
 interface NavbarProps {
@@ -11,7 +11,6 @@ const NAV_ITEMS: { id: AppView; label: string; icon: typeof BookOpen }[] = [
   { id: 'catalog', label: '店铺库', icon: BookOpen },
   { id: 'picker', label: '今天吃啥', icon: Dices },
   { id: 'insights', label: '品味统计', icon: PieChart },
-  { id: 'deploy', label: '部署指南', icon: CloudUpload },
 ];
 
 export function Navbar({ activeView, onSelectView, onOpenAddModal }: NavbarProps) {
@@ -73,12 +72,12 @@ export function Navbar({ activeView, onSelectView, onOpenAddModal }: NavbarProps
         </div>
       </header>
 
-      {/* Mobile bottom tab bar (combined sticky height 52 + 56 = 108px < 15% of 844px) */}
+      {/* Mobile bottom tab bar */}
       <nav
         aria-label="移动端底部导航"
         className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-black/[0.08] pb-safe"
       >
-        <div className="grid grid-cols-4 h-14">
+        <div className="grid grid-cols-3 h-14">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = activeView === item.id;

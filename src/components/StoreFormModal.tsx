@@ -5,6 +5,7 @@ import {
   CUISINE_CATEGORIES,
   DEFAULT_COVER_BY_CATEGORY,
   DELIVERY_PLATFORMS,
+  POPULAR_CITIES,
 } from '../data/seedStores';
 import type {
   CuisineCategory,
@@ -23,6 +24,7 @@ interface StoreFormModalProps {
   onSubmit: (payload: {
     id?: string;
     name: string;
+    city: string;
     category: CuisineCategory;
     platform: DeliveryPlatform;
     rating: number;
@@ -40,6 +42,7 @@ function buildInitialForm(editingStore: TakeoutStore | null): StoreFormInput {
   if (editingStore) {
     return {
       name: editingStore.name,
+      city: editingStore.city,
       category: editingStore.category,
       platform: editingStore.platform,
       rating: editingStore.rating,
@@ -54,6 +57,7 @@ function buildInitialForm(editingStore: TakeoutStore | null): StoreFormInput {
   }
   return {
     name: '',
+    city: '',
     category: '中式正餐',
     platform: '美团',
     rating: 4.8,
@@ -141,6 +145,7 @@ export function StoreFormModal({
     onSubmit({
       id: editingStore?.id,
       name: form.name.trim(),
+      city: form.city.trim(),
       category: form.category,
       platform: form.platform,
       rating: Number(form.rating.toFixed(1)),
@@ -188,27 +193,57 @@ export function StoreFormModal({
         {/* Form wrapper with scrollable fields + pinned bottom footer */}
         <form onSubmit={handleSubmit} noValidate className="flex-1 min-h-0 flex flex-col">
           <div className="flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6 space-y-5">
-            {/* Store Name */}
-            <div>
-              <label htmlFor="store-name" className="block text-sm font-medium text-[#111315] mb-1.5">
-                店铺名称 <span className="text-[#C93B2B]">*</span>
-              </label>
-              <input
-                id="store-name"
-                type="text"
-                value={form.name}
-                onChange={(e) => {
-                  setForm((prev) => ({ ...prev, name: e.target.value }));
-                  if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
-                }}
-                placeholder="例如：潮汕阿强牛肉粿条（科技园店）"
-                className="w-full px-3.5 py-2.5 min-h-[44px] text-base sm:text-sm bg-white border border-black/[0.14] rounded-lg focus:border-[#C93B2B] focus:outline-none"
-              />
-              {errors.name && (
-                <p role="alert" className="mt-1.5 text-xs text-[#C93B2B]">
-                  {errors.name}
-                </p>
-              )}
+            {/* Store Name + City */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              <div className="sm:col-span-2">
+                <label htmlFor="store-name" className="block text-sm font-medium text-[#111315] mb-1.5">
+                  店铺名称 <span className="text-[#C93B2B]">*</span>
+                </label>
+                <input
+                  id="store-name"
+                  type="text"
+                  value={form.name}
+                  onChange={(e) => {
+                    setForm((prev) => ({ ...prev, name: e.target.value }));
+                    if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+                  }}
+                  placeholder="例如：潮汕阿强牛肉粿条（科技园店）"
+                  className="w-full px-3.5 py-2.5 min-h-[44px] text-base sm:text-sm bg-white border border-black/[0.14] rounded-lg focus:border-[#C93B2B] focus:outline-none"
+                />
+                {errors.name && (
+                  <p role="alert" className="mt-1.5 text-xs text-[#C93B2B]">
+                    {errors.name}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="store-city" className="block text-sm font-medium text-[#111315] mb-1.5">
+                  所在城市 <span className="text-[#C93B2B]">*</span>
+                </label>
+                <input
+                  id="store-city"
+                  type="text"
+                  list="popular-city-options"
+                  value={form.city}
+                  onChange={(e) => {
+                    setForm((prev) => ({ ...prev, city: e.target.value }));
+                    if (errors.city) setErrors((prev) => ({ ...prev, city: undefined }));
+                  }}
+                  placeholder="如：上海、汕头"
+                  className="w-full px-3.5 py-2.5 min-h-[44px] text-base sm:text-sm bg-white border border-black/[0.14] rounded-lg focus:border-[#C93B2B] focus:outline-none"
+                />
+                <datalist id="popular-city-options">
+                  {POPULAR_CITIES.map((c) => (
+                    <option key={c} value={c} />
+                  ))}
+                </datalist>
+                {errors.city && (
+                  <p role="alert" className="mt-1.5 text-xs text-[#C93B2B]">
+                    {errors.city}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Category + Platform */}

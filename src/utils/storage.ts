@@ -11,7 +11,14 @@ export function loadStoresFromStorage(): TakeoutStore[] {
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
-      return parsed as TakeoutStore[];
+      const seedCityById = new Map(SEED_STORES.map((s) => [s.id, s.city]));
+      return (parsed as Partial<TakeoutStore>[]).map((item) => ({
+        ...(item as TakeoutStore),
+        city:
+          typeof item.city === 'string' && item.city.trim()
+            ? item.city.trim()
+            : (item.id && seedCityById.get(item.id)) || '未填城市',
+      }));
     }
     return SEED_STORES;
   } catch {

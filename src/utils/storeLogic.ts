@@ -17,6 +17,19 @@ export function parseDishesText(raw: string): string[] {
     .filter((item) => item.length > 0);
 }
 
+export function getUniqueCities(stores: TakeoutStore[]): string[] {
+  const counts = new Map<string, number>();
+  for (const store of stores) {
+    const city = store.city?.trim();
+    if (city) {
+      counts.set(city, (counts.get(city) ?? 0) + 1);
+    }
+  }
+  return Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'zh-CN'))
+    .map(([city]) => city);
+}
+
 export function validateStoreInput(input: StoreFormInput): {
   valid: boolean;
   errors: ValidationErrors;
@@ -26,11 +39,18 @@ export function validateStoreInput(input: StoreFormInput): {
 } {
   const errors: ValidationErrors = {};
   const trimmedName = input.name.trim();
+  const trimmedCity = input.city.trim();
 
   if (!trimmedName) {
     errors.name = '请输入店铺名称';
   } else if (trimmedName.length > 50) {
     errors.name = '店铺名称不超过 50 个字';
+  }
+
+  if (!trimmedCity) {
+    errors.city = '请输入所在城市';
+  } else if (trimmedCity.length > 20) {
+    errors.city = '城市名称不超过 20 个字';
   }
 
   const parsedPrice = Number(input.avgPrice);
@@ -76,6 +96,9 @@ export function filterAndSortStores(
     if (filters.favoritesOnly && !store.isFavorite) {
       return false;
     }
+    if (filters.city !== '全部城市' && store.city !== filters.city) {
+      return false;
+    }
     if (filters.category !== '全部' && store.category !== filters.category) {
       return false;
     }
@@ -85,6 +108,7 @@ export function filterAndSortStores(
     if (query) {
       const searchable = [
         store.name,
+        store.city,
         store.category,
         store.platform,
         store.notes,
@@ -129,6 +153,7 @@ export function pickMatchingStores(
 ): TakeoutStore[] {
   return stores.filter((store) => {
     if (criteria.favoritesOnly && !store.isFavorite) return false;
+    if (criteria.city !== '全部城市' && store.city !== criteria.city) return false;
     if (criteria.category !== '全部' && store.category !== criteria.category) return false;
     if (criteria.maxPrice !== null && store.avgPrice > criteria.maxPrice) return false;
     if (
@@ -173,6 +198,7 @@ export function computeTasteStats(stores: TakeoutStore[]): TasteStats {
       topCategory: null,
       categoryBreakdown: [],
       platformBreakdown: [],
+      cityBreakdown: [],
       topReordered: [],
     };
   }
@@ -185,6 +211,7 @@ export function computeTasteStats(stores: TakeoutStore[]): TasteStats {
 
   const categoryCounts = new Map<CuisineCategory, number>();
   const platformCounts = new Map<DeliveryPlatform, number>();
+  const cityCounts = new Map<string, number>();
 
   for (const store of stores) {
     if (store.isFavorite) favoriteCount += 1;
@@ -196,6 +223,8 @@ export function computeTasteStats(stores: TakeoutStore[]): TasteStats {
     }
     categoryCounts.set(store.category, (categoryCounts.get(store.category) ?? 0) + 1);
     platformCounts.set(store.platform, (platformCounts.get(store.platform) ?? 0) + 1);
+    const cityLabel = store.city?.trim() || '未填城市';
+    cityCounts.set(cityLabel, (cityCounts.get(cityLabel) ?? 0) + 1);
   }
 
   const categoryBreakdown = Array.from(categoryCounts.entries())
@@ -214,6 +243,14 @@ export function computeTasteStats(stores: TakeoutStore[]): TasteStats {
     }))
     .sort((a, b) => b.count - a.count);
 
+  const cityBreakdown = Array.from(cityCounts.entries())
+    .map(([city, count]) => ({
+      city,
+      count,
+      percentage: Math.round((count / totalStores) * 100),
+    }))
+    .sort((a, b) => b.count - a.count || a.city.localeCompare(b.city, 'zh-CN'));
+
   const topReordered = [...stores]
     .sort((a, b) => b.orderCount - a.orderCount || b.rating - a.rating)
     .slice(0, 5);
@@ -228,6 +265,7 @@ export function computeTasteStats(stores: TakeoutStore[]): TasteStats {
     topCategory: categoryBreakdown[0]?.category ?? null,
     categoryBreakdown,
     platformBreakdown,
+    cityBreakdown,
     topReordered,
   };
 }
@@ -235,7 +273,7 @@ export function computeTasteStats(stores: TakeoutStore[]): TasteStats {
 export function exportStoresToJson(stores: TakeoutStore[]): string {
   return JSON.stringify(
     {
-      version: 1,
+      version: 2,
       exportedAt: new Date().toISOString(),
       stores,
     },
@@ -274,6 +312,8 @@ export function parseImportedStoresJson(
       const avgPriceNum = Number(item.avgPrice);
       const deliveryNum = Number(item.deliveryMinutes);
       const orderNum = Number(item.orderCount);
+      const cityStr =
+        typeof item.city === 'string' && item.city.trim() ? item.city.trim() : '未填城市';
 
       const dishes = Array.isArray(item.mustOrderDishes)
         ? item.mustOrderDishes.map((d) => String(d).trim()).filter(Boolean)
@@ -282,6 +322,7 @@ export function parseImportedStoresJson(
       normalized.push({
         id: typeof item.id === 'string' && item.id.trim() ? item.id : `imported-${Date.now()}-${i}`,
         name: item.name.trim(),
+        city: cityStr,
         category,
         platform,
         rating:

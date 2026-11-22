@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowUpRight, ChevronDown, Heart, Plus, Search, Star, X } from 'lucide-react';
 import { CoverImage } from './components/CoverImage';
-import { DeployGuideView } from './components/DeployGuideView';
 import { InsightsView } from './components/InsightsView';
 import { MealPickerView } from './components/MealPickerView';
 import { Navbar } from './components/Navbar';
@@ -22,6 +21,7 @@ import {
   computeTasteStats,
   filterAndSortStores,
   getTodayDateString,
+  getUniqueCities,
 } from './utils/storeLogic';
 
 export default function App() {
@@ -30,6 +30,7 @@ export default function App() {
 
   const [filters, setFilters] = useState<StoreFilterState>({
     search: '',
+    city: '全部城市',
     category: '全部',
     platform: '全部平台',
     favoritesOnly: false,
@@ -54,6 +55,8 @@ export default function App() {
     const timer = window.setTimeout(() => setToastMessage(null), 2600);
     return () => window.clearTimeout(timer);
   }, [toastMessage]);
+
+  const cities = useMemo(() => getUniqueCities(stores), [stores]);
 
   const filteredStores = useMemo(
     () => filterAndSortStores(stores, filters),
@@ -106,6 +109,7 @@ export default function App() {
   const handleSaveStore = (payload: {
     id?: string;
     name: string;
+    city: string;
     category: CuisineCategory;
     platform: DeliveryPlatform;
     rating: number;
@@ -124,6 +128,7 @@ export default function App() {
             ? {
                 ...store,
                 name: payload.name,
+                city: payload.city,
                 category: payload.category,
                 platform: payload.platform,
                 rating: payload.rating,
@@ -143,6 +148,7 @@ export default function App() {
       const newStore: TakeoutStore = {
         id: `store-${Date.now()}`,
         name: payload.name,
+        city: payload.city,
         category: payload.category,
         platform: payload.platform,
         rating: payload.rating,
@@ -188,6 +194,7 @@ export default function App() {
 
   const hasActiveFilters =
     filters.search.trim() !== '' ||
+    filters.city !== '全部城市' ||
     filters.category !== '全部' ||
     filters.platform !== '全部平台' ||
     filters.favoritesOnly;
@@ -195,6 +202,7 @@ export default function App() {
   const resetFilters = () => {
     setFilters({
       search: '',
+      city: '全部城市',
       category: '全部',
       platform: '全部平台',
       favoritesOnly: false,
@@ -250,7 +258,7 @@ export default function App() {
                       onChange={(e) =>
                         setFilters((prev) => ({ ...prev, search: e.target.value }))
                       }
-                      placeholder="搜索店名、必点菜（如：牛肉面、冰博克）..."
+                      placeholder="搜索店名、城市、必点菜（如：上海、牛肉面）..."
                       className="w-full pl-11 pr-11 py-3 min-h-[46px] text-base sm:text-sm bg-white border border-black/[0.12] rounded-xl focus:border-[#C93B2B] focus:outline-none transition-colors"
                     />
                     {filters.search && (
@@ -328,7 +336,9 @@ export default function App() {
                     />
                     <div className="relative h-full p-5 sm:p-6 flex flex-col justify-between text-white">
                       <div className="flex items-center justify-between text-xs text-white/85">
-                        <span>回购榜首 · {featuredStore.platform}</span>
+                        <span>
+                          回购榜首 · {featuredStore.city} · {featuredStore.platform}
+                        </span>
                         <span className="inline-flex items-center gap-1 font-mono tabular-nums font-medium">
                           <Star
                             className="w-3.5 h-3.5 fill-white text-white"
@@ -419,6 +429,34 @@ export default function App() {
                     />
                     <span>仅看置顶收藏</span>
                   </button>
+
+                  <div className="relative shrink-0">
+                    <label className="sr-only" htmlFor="city-filter">
+                      按城市筛选
+                    </label>
+                    <select
+                      id="city-filter"
+                      value={filters.city}
+                      onChange={(e) =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          city: e.target.value,
+                        }))
+                      }
+                      className="appearance-none pl-3.5 pr-9 py-2 min-h-[44px] sm:min-h-[40px] text-xs font-medium bg-white border border-black/[0.1] rounded-lg text-[#111315] cursor-pointer focus:border-[#C93B2B] focus:outline-none"
+                    >
+                      <option value="全部城市">全部城市</option>
+                      {cities.map((cityOption) => (
+                        <option key={cityOption} value={cityOption}>
+                          {cityOption}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown
+                      className="w-3.5 h-3.5 text-[#5A6069] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                      aria-hidden="true"
+                    />
+                  </div>
 
                   <div className="relative shrink-0">
                     <label className="sr-only" htmlFor="platform-filter">
@@ -569,8 +607,6 @@ export default function App() {
             }}
           />
         )}
-
-        {activeView === 'deploy' && <DeployGuideView />}
       </main>
 
       {/* Quiet Editorial Footer */}
@@ -580,17 +616,17 @@ export default function App() {
           <div className="flex items-center gap-6">
             <button
               type="button"
+              onClick={() => setActiveView('picker')}
+              className="hover:text-[#111315] transition-colors cursor-pointer"
+            >
+              今天吃啥
+            </button>
+            <button
+              type="button"
               onClick={() => setActiveView('insights')}
               className="hover:text-[#111315] transition-colors cursor-pointer"
             >
               数据备份
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveView('deploy')}
-              className="hover:text-[#111315] transition-colors cursor-pointer"
-            >
-              Cloudflare Pages 部署说明
             </button>
           </div>
         </div>

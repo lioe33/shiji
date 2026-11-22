@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Check, Copy, Dices, Plus, RotateCw, Star } from 'lucide-react';
 import { CUISINE_CATEGORIES } from '../data/seedStores';
 import type { CuisineCategory, MealPickerCriteria, TakeoutStore } from '../types/store';
-import { pickMatchingStores, pickRandomStore } from '../utils/storeLogic';
+import { getUniqueCities, pickMatchingStores, pickRandomStore } from '../utils/storeLogic';
 import { CoverImage } from './CoverImage';
 
 interface MealPickerViewProps {
@@ -30,6 +30,7 @@ export function MealPickerView({
   onIncrementOrder,
 }: MealPickerViewProps) {
   const [criteria, setCriteria] = useState<MealPickerCriteria>({
+    city: '全部城市',
     category: '全部',
     maxPrice: null,
     maxDeliveryMinutes: null,
@@ -39,6 +40,8 @@ export function MealPickerView({
   const [isRolling, setIsRolling] = useState(false);
   const [copied, setCopied] = useState(false);
   const resultRef = useRef<HTMLElement>(null);
+
+  const cities = useMemo(() => getUniqueCities(stores), [stores]);
 
   const matchingStores = useMemo(
     () => pickMatchingStores(stores, criteria),
@@ -104,6 +107,34 @@ export function MealPickerView({
           aria-label="抽选条件"
           className="lg:col-span-5 bg-white border border-black/[0.08] rounded-xl p-5 sm:p-6 space-y-5 sm:space-y-6"
         >
+          {cities.length > 0 && (
+            <div>
+              <p className="text-sm font-medium text-[#111315] mb-3">所在城市</p>
+              <div className="flex flex-wrap gap-2">
+                {['全部城市', ...cities].map((cityOption) => {
+                  const active = criteria.city === cityOption;
+                  return (
+                    <button
+                      key={cityOption}
+                      type="button"
+                      onClick={() =>
+                        setCriteria((prev) => ({ ...prev, city: cityOption }))
+                      }
+                      aria-pressed={active}
+                      className={`px-3.5 py-2 min-h-[40px] sm:min-h-[36px] text-xs font-medium rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                        active
+                          ? 'bg-[#111315] text-white'
+                          : 'bg-[#F3F4F6] text-[#5A6069] hover:text-[#111315]'
+                      }`}
+                    >
+                      {cityOption}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div>
             <p className="text-sm font-medium text-[#111315] mb-3">想吃什么菜系</p>
             <div className="flex flex-wrap gap-2">
@@ -238,7 +269,7 @@ export function MealPickerView({
               <div className="p-5 md:p-6 space-y-4">
                 <div className="flex items-center justify-between gap-4 text-xs text-[#5A6069]">
                   <span className="truncate">
-                    {pickedStore.category} · {pickedStore.platform} · 约{' '}
+                    {pickedStore.city} · {pickedStore.category} · {pickedStore.platform} · 约{' '}
                     <span className="font-mono tabular-nums">
                       {pickedStore.deliveryMinutes}
                     </span>{' '}
