@@ -1,0 +1,6 @@
+{
+  "name": "食记 · 宝藏外卖录",
+  "description": "私人外卖店铺手账：记录宝藏店铺、必点招牌菜与避雷备注，支持今天吃啥随机抽选、口味统计、JSON 备份及一键通过 GitHub 部署至 Cloudflare Pages。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
